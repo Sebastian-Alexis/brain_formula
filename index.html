@@ -389,7 +389,9 @@
                 
                 // Boulder position: 0 = touching body (death), 100 = far away
                 this.boulderPosition = 70; // Start at medium distance
-                this.boulderAdvanceRate = 0.05; // How fast boulder naturally advances per frame
+                this.boulderAdvanceRate = 0.02; // How fast boulder naturally advances per frame (was 0.05)
+                this.targetBoulderPosition = 70; // Target position for smooth animation
+                this.boulderAnimationSpeed = 0.15; // How fast boulder moves toward target
                 
                 this.position = 0; // 0 to 1, representing position across the red bar
                 this.direction = 1; // 1 for right, -1 for left
@@ -478,13 +480,13 @@
                 
                 switch (timing) {
                     case 'perfect':
-                        this.boulderPosition = Math.min(100, this.boulderPosition + 8); // Push boulder away significantly
+                        this.targetBoulderPosition = Math.min(100, this.targetBoulderPosition + 18); // Double pushback (was 9)
                         this.playTone(523.25, 0.2); // C5
                         this.showFeedback('PERFECT!', 'perfect');
                         break;
                         
                     case 'good':
-                        this.boulderPosition = Math.min(100, this.boulderPosition + 4); // Push boulder away moderately
+                        this.targetBoulderPosition = Math.min(100, this.targetBoulderPosition + 9); // Double pushback (was 4.5)
                         this.playTone(392, 0.2); // G4
                         this.showFeedback('GOOD!', 'good');
                         break;
@@ -508,7 +510,7 @@
                 this.speed = Math.min(0.015, this.speed + 0.0001);
                 
                 // Increase boulder advance rate over time for difficulty
-                this.boulderAdvanceRate = Math.min(0.15, this.boulderAdvanceRate + 0.002);
+                this.boulderAdvanceRate = Math.min(0.08, this.boulderAdvanceRate + 0.001); // Max 0.08 (was 0.15), slower increase
             }
             
             updateVisuals() {
@@ -640,9 +642,19 @@
                     this.blackBar.style.left = `${blackBarPosition}px`;
                 }
                 
-                // Constant boulder advancement (gravity/physics simulation)
+                // Constant boulder advancement and smooth animation
                 if (!this.gameEnded) {
-                    this.boulderPosition = Math.max(0, this.boulderPosition - this.boulderAdvanceRate);
+                    // Natural boulder advance affects target position
+                    this.targetBoulderPosition = Math.max(0, this.targetBoulderPosition - this.boulderAdvanceRate);
+                    
+                    // Smooth animation: move actual position toward target
+                    const positionDiff = this.targetBoulderPosition - this.boulderPosition;
+                    if (Math.abs(positionDiff) > 0.01) {
+                        this.boulderPosition += positionDiff * this.boulderAnimationSpeed;
+                    } else {
+                        this.boulderPosition = this.targetBoulderPosition;
+                    }
+                    
                     this.updateVisuals();
                     this.checkGameOver();
                 }

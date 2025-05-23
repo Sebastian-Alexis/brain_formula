@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisyphus: The Eternal Struggle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c1810, #4a2c1a, #3d2318);
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sisyphus-scene {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 250px;
+            z-index: 1;
+        }
+
+        .sisyphus-body {
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(to bottom, #D2B48C, #8B4513);
+            border-radius: 30px 30px 10px 10px;
+            position: absolute;
+            left: 80px;
+            top: 100px;
+            z-index: 2;
+        }
+
+        .sisyphus-head {
+            width: 40px;
+            height: 40px;
+            background: #D2B48C;
+            border-radius: 50%;
+            position: absolute;
+            left: 90px;
+            top: 70px;
+            z-index: 3;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .sisyphus-legs {
+            width: 80px;
+            height: 40px;
+            background: #8B4513;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            left: 70px;
+            top: 210px;
+            z-index: 1;
+        }
+
+        .sisyphus-upper-arm {
+            width: 50px;
+            height: 12px;
+            background: linear-gradient(to right, #D2B48C, #B8860B);
+            border-radius: 6px;
+            position: absolute;
+            left: 140px;
+            top: 132px;
+            transform-origin: left center;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .sisyphus-forearm {
+            width: 45px;
+            height: 10px;
+            background: linear-gradient(to right, #D2B48C, #8B4513);
+            border-radius: 5px;
+            position: absolute;
+            left: 50px;
+            top: -1px;
+            transform-origin: left center;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sisyphus-hand {
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #D2B48C, #B8860B);
+            border-radius: 50%;
+            position: absolute;
+            left: 45px;
+            top: -2.5px;
+            transform-origin: center;
+            z-index: 4;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.4);
+        }
+
+        .boulder {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #999, #333);
+            border-radius: 50%;
+            position: absolute;
+            right: 60px;
+            top: 140px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            z-index: 1;
+        }
+
+        .boulder::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #bbb, #666);
+            border-radius: 50%;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+        }
+
+        .boulder::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #aaa, #555);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 20px;
+            right: 15px;
+        }
+
+        .rhythm-bar-container {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 100px;
+            z-index: 10;
+        }
+
+        .red-bar {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(45deg, #cc0000, #ff3333);
+            border: 3px solid #990000;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(204, 0, 0, 0.5);
+        }
+
+        .green-bar {
+            width: 200px;
+            height: 40px;
+            background: linear-gradient(45deg, #00cc00, #33ff33);
+            border: 2px solid #009900;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 3px 10px rgba(0, 204, 0, 0.5);
+        }
+
+        .green-line {
+            width: 3px;
+            height: 50px;
+            background: #00ff00;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .green-line::before,
+        .green-line::after {
+            content: '';
+            width: 10px;
+            height: 2px;
+            background: #00ff00;
+            position: absolute;
+            left: -3.5px;
+        }
+
+        .green-line::before {
+            top: 10px;
+        }
+
+        .green-line::after {
+            bottom: 10px;
+        }
+
+        .black-bar {
+            width: 6px;
+            height: 70px;
+            background: linear-gradient(to bottom, #000, #333, #000);
+            border: 1px solid #666;
+            border-radius: 3px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            transition: left 0.05s linear;
+        }
+
+        .danger-indicator {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .danger-indicator.warning {
+            color: #ffaa00;
+            opacity: 1;
+        }
+
+        .danger-indicator.critical {
+            color: #ff0000;
+            opacity: 1;
+            animation: pulse-warning 0.5s infinite alternate;
+        }
+
+        @keyframes pulse-warning {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 1.1em;
+            color: #ccc;
+            z-index: 10;
+        }
+
+        .feedback {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feedback.perfect { color: #00ff00; }
+        .feedback.good { color: #ffff00; }
+        .feedback.miss { color: #ff0000; }
+        .feedback.show { opacity: 1; }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #ff0000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .game-over.show {
+            opacity: 1;
+        }
+
+        .game-over h1 {
+            color: #ff0000;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        }
+
+        .game-over p {
+            color: #ccc;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #cc0000, #ff3333);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="danger-indicator" id="dangerIndicator"></div>
+
+        <div class="sisyphus-scene">
+            <div class="sisyphus-head"></div>
+            <div class="sisyphus-body"></div>
+            <div class="sisyphus-legs"></div>
+            <div class="sisyphus-upper-arm" id="sisyphusUpperArm">
+                <div class="sisyphus-forearm" id="sisyphusForearm">
+                    <div class="sisyphus-hand" id="sisyphusHand"></div>
+                </div>
+            </div>
+            <div class="boulder" id="boulder"></div>
+        </div>
+
+        <div class="rhythm-bar-container">
+            <div class="red-bar">
+                <div class="green-bar">
+                    <div class="green-line"></div>
+                </div>
+                <div class="black-bar" id="blackBar"></div>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="game-over" id="gameOver">
+            <h1>CRUSHED</h1>
+            <p>The boulder has overwhelmed Sisyphus.<br>The eternal struggle continues...</p>
+            <button class="restart-btn" onclick="location.reload()">Try Again</button>
+        </div>
+
+        <div class="instructions">
+            Press SPACE when the black bar aligns with the green line!<br>
+            Keep your arm extended to hold back the boulder. If it touches your body, you lose.
+        </div>
+    </div>
+
+    <script>
+        class SisyphusRhythmGame {
+            constructor() {
+                this.blackBar = document.getElementById('blackBar');
+                this.sisyphusUpperArm = document.getElementById('sisyphusUpperArm');
+                this.sisyphusForearm = document.getElementById('sisyphusForearm');
+                this.sisyphusHand = document.getElementById('sisyphusHand');
+                this.boulder = document.getElementById('boulder');
+                this.feedback = document.getElementById('feedback');
+                this.dangerIndicator = document.getElementById('dangerIndicator');
+                this.gameOver = document.getElementById('gameOver');
+                
+                // Boulder position: 0 = touching body (death), 100 = far away
+                this.boulderPosition = 70; // Start at medium distance
+                this.boulderAdvanceRate = 0.05; // How fast boulder naturally advances per frame
+                
+                this.position = 0; // 0 to 1, representing position across the red bar
+                this.direction = 1; // 1 for right, -1 for left
+                this.speed = 0.008; // Speed of bar movement
+                this.lastTime = 0;
+                this.isAnimating = false;
+                this.gameEnded = false;
+                
+                // Perfect zone is center ± 0.05 (10% of bar width)
+                this.perfectZone = { min: 0.45, max: 0.55 };
+                this.goodZone = { min: 0.35, max: 0.65 };
+                
+                this.setupEventListeners();
+                this.updateVisuals();
+                this.gameLoop();
+                
+                // Create audio context for rhythm sounds
+                this.createAudioContext();
+            }
+            
+            createAudioContext() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio context not available');
+                }
+            }
+            
+            playTone(frequency, duration, type = 'sine') {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start();
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !this.gameEnded) {
+                        e.preventDefault();
+                        this.handleSpacePress();
+                    }
+                });
+                
+                // Handle audio context for mobile
+                document.addEventListener('touchstart', () => {
+                    if (this.audioContext && this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+                }, { once: true });
+            }
+            
+            handleSpacePress() {
+                if (this.isAnimating || this.gameEnded) return;
+                
+                const timing = this.evaluateTiming();
+                this.processHit(timing);
+            }
+            
+            evaluateTiming() {
+                const center = 0.5;
+                const distance = Math.abs(this.position - center);
+                
+                if (distance <= (this.perfectZone.max - center)) {
+                    return 'perfect';
+                } else if (distance <= (this.goodZone.max - center)) {
+                    return 'good';
+                } else {
+                    return 'miss';
+                }
+            }
+            
+            processHit(timing) {
+                this.isAnimating = true;
+                
+                switch (timing) {
+                    case 'perfect':
+                        this.boulderPosition = Math.min(100, this.boulderPosition + 8); // Push boulder away significantly
+                        this.playTone(523.25, 0.2); // C5
+                        this.showFeedback('PERFECT!', 'perfect');
+                        break;
+                        
+                    case 'good':
+                        this.boulderPosition = Math.min(100, this.boulderPosition + 4); // Push boulder away moderately
+                        this.playTone(392, 0.2); // G4
+                        this.showFeedback('GOOD!', 'good');
+                        break;
+                        
+                    case 'miss':
+                        // Do nothing - boulder continues its natural advance
+                        this.playTone(196, 0.3, 'sawtooth'); // G3
+                        this.showFeedback('MISS!', 'miss');
+                        break;
+                }
+                
+                this.updateVisuals();
+                this.checkGameOver();
+                
+                // No gradual decay needed - boulder naturally advances
+                setTimeout(() => {
+                    this.isAnimating = false;
+                }, 400);
+                
+                // Increase speed slightly over time
+                this.speed = Math.min(0.015, this.speed + 0.0001);
+                
+                // Increase boulder advance rate over time for difficulty
+                this.boulderAdvanceRate = Math.min(0.15, this.boulderAdvanceRate + 0.002);
+            }
+            
+            updateVisuals() {
+                // Calculate boulder position - FIXED: lower boulderPosition = closer to Sisyphus (moves LEFT)
+                const boulderRightDistance = 200 - this.boulderPosition; // When boulderPosition decreases, right distance increases = moves LEFT
+                this.boulder.style.right = `${boulderRightDistance}px`;
+                
+                // Target: Hand must touch boulder's left edge
+                const boulderLeftEdgeX = 400 - boulderRightDistance - 80; // Boulder left edge
+                const boulderContactY = 180; // Contact point Y position
+                
+                const shoulderX = 140;
+                const shoulderY = 132;
+                const upperArmLength = 50;
+                const forearmLength = 45;
+                
+                const strengthFactor = this.boulderPosition / 100; // 0 = weak, 1 = strong
+                const weaknessFactor = 1 - strengthFactor;
+                
+                // Use inverse kinematics to position arm so hand reaches boulder edge
+                const distanceToTarget = Math.sqrt(
+                    Math.pow(boulderLeftEdgeX - shoulderX, 2) + 
+                    Math.pow(boulderContactY - shoulderY, 2)
+                );
+                
+                if (distanceToTarget <= upperArmLength + forearmLength) {
+                    // Calculate base angle toward target
+                    const baseAngleToTarget = Math.atan2(boulderContactY - shoulderY, boulderLeftEdgeX - shoulderX);
+                    
+                    // When weak, upper arm is pushed DOWN by boulder force (more positive angle)
+                    const upperArmDownwardPush = weaknessFactor * 0.8; // Up to 0.8 radians (45 degrees) downward
+                    const modifiedTargetAngle = baseAngleToTarget + upperArmDownwardPush;
+                    
+                    // Calculate elbow position with pushed-down upper arm
+                    const elbowX = shoulderX + upperArmLength * Math.cos(modifiedTargetAngle);
+                    const elbowY = shoulderY + upperArmLength * Math.sin(modifiedTargetAngle);
+                    
+                    // Calculate forearm angle to reach from this elbow to boulder edge
+                    const forearmAngle = Math.atan2(boulderContactY - elbowY, boulderLeftEdgeX - elbowX);
+                    
+                    // Apply transforms
+                    this.sisyphusUpperArm.style.transform = `rotate(${modifiedTargetAngle * 180 / Math.PI}deg)`;
+                    this.sisyphusForearm.style.transform = `rotate(${(forearmAngle - modifiedTargetAngle) * 180 / Math.PI}deg)`;
+                    
+                    // Position forearm at end of upper arm
+                    this.sisyphusForearm.style.left = `${upperArmLength}px`;
+                    this.sisyphusForearm.style.top = `-1px`;
+                    
+                } else {
+                    // Can't reach - extend arm toward boulder
+                    const angleToTarget = Math.atan2(boulderContactY - shoulderY, boulderLeftEdgeX - shoulderX);
+                    this.sisyphusUpperArm.style.transform = `rotate(${angleToTarget * 180 / Math.PI}deg)`;
+                    this.sisyphusForearm.style.transform = `rotate(0deg)`;
+                    this.sisyphusForearm.style.left = `${upperArmLength}px`;
+                    this.sisyphusForearm.style.top = `-1px`;
+                }
+                
+                // Update danger indicator
+                this.updateDangerIndicator();
+            }
+            
+            updateDangerIndicator() {
+                if (this.boulderPosition > 70) {
+                    this.dangerIndicator.textContent = '';
+                    this.dangerIndicator.className = 'danger-indicator';
+                } else if (this.boulderPosition > 40) {
+                    this.dangerIndicator.textContent = 'BOULDER APPROACHING';
+                    this.dangerIndicator.className = 'danger-indicator warning';
+                } else if (this.boulderPosition > 20) {
+                    this.dangerIndicator.textContent = 'CRITICAL DANGER!';
+                    this.dangerIndicator.className = 'danger-indicator critical';
+                } else {
+                    this.dangerIndicator.textContent = 'CRITICAL DANGER!';
+                    this.dangerIndicator.className = 'danger-indicator critical';
+                }
+            }
+            
+            checkGameOver() {
+                if (this.boulderPosition <= 0 && !this.gameEnded) {
+                    this.gameEnded = true;
+                    this.endGame();
+                }
+            }
+            
+            endGame() {
+                // Final crushing animation - boulder crushes Sisyphus
+                this.sisyphusUpperArm.style.transform = 'rotate(-70deg)'; // Arm swings up toward head
+                this.sisyphusForearm.style.transform = 'rotate(-40deg)'; // Forearm bends in helplessly
+                this.boulder.style.right = '20px'; // Boulder crushes close to body
+                this.playTone(100, 1, 'sawtooth'); // Deep crushing sound
+                
+                setTimeout(() => {
+                    this.gameOver.classList.add('show');
+                }, 500);
+            }
+            
+            showFeedback(text, type) {
+                this.feedback.textContent = text;
+                this.feedback.className = `feedback ${type}`;
+                this.feedback.classList.add('show');
+                
+                setTimeout(() => {
+                    this.feedback.classList.remove('show');
+                }, 600);
+            }
+            
+            gameLoop(currentTime = 0) {
+                const deltaTime = currentTime - this.lastTime;
+                this.lastTime = currentTime;
+                
+                if (!this.isAnimating && !this.gameEnded) {
+                    // Update position
+                    this.position += this.direction * this.speed;
+                    
+                    // Bounce off edges
+                    if (this.position >= 1) {
+                        this.position = 1;
+                        this.direction = -1;
+                        this.playTone(330, 0.1); // E4 - subtle tick sound
+                    } else if (this.position <= 0) {
+                        this.position = 0;
+                        this.direction = 1;
+                        this.playTone(330, 0.1); // E4 - subtle tick sound
+                    }
+                    
+                    // Update black bar position
+                    const redBarWidth = 600; // Width of red bar
+                    const blackBarPosition = this.position * (redBarWidth - 6); // 6 is width of black bar
+                    this.blackBar.style.left = `${blackBarPosition}px`;
+                }
+                
+                // Constant boulder advancement (gravity/physics simulation)
+                if (!this.gameEnded) {
+                    this.boulderPosition = Math.max(0, this.boulderPosition - this.boulderAdvanceRate);
+                    this.updateVisuals();
+                    this.checkGameOver();
+                }
+                
+                requestAnimationFrame((time) => this.gameLoop(time));
+            }
+        }
+        
+        // Start the game when the page loads
+        window.addEventListener('load', () => {
+            new SisyphusRhythmGame();
+        });
+        
+        // Handle page click for audio context (mobile compatibility)
+        document.addEventListener('click', function initAudio() {
+            // This is needed for mobile browsers that require user interaction for audio
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+    </script>
+</body>
+</html> 

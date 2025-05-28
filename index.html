@@ -389,16 +389,20 @@
                 
                 // Boulder position: 0 = touching body (death), 100 = far away
                 this.boulderPosition = 70; // Start at medium distance
-                this.boulderAdvanceRate = 0.02; // How fast boulder naturally advances per frame (was 0.05)
+                this.boulderAdvanceRate = 0.1; // How fast boulder naturally advances per frame (increased 5x from 0.02)
                 this.targetBoulderPosition = 70; // Target position for smooth animation
                 this.boulderAnimationSpeed = 0.15; // How fast boulder moves toward target
                 
                 this.position = 0; // 0 to 1, representing position across the red bar
                 this.direction = 1; // 1 for right, -1 for left
-                this.speed = 0.008; // Speed of bar movement
+                this.speed = 0.016; // Speed of bar movement (increased 2x from 0.008)
                 this.lastTime = 0;
                 this.isAnimating = false;
                 this.gameEnded = false;
+                
+                // Spacebar cooldown system
+                this.lastSpacePress = 0;
+                this.spacebarCooldown = 500; // 500ms (0.5 second) cooldown between spacebar presses
                 
                 // Perfect zone is center ± 0.05 (10% of bar width)
                 this.perfectZone = { min: 0.45, max: 0.55 };
@@ -458,6 +462,14 @@
             handleSpacePress() {
                 if (this.isAnimating || this.gameEnded) return;
                 
+                // Check cooldown - prevent spacebar spamming
+                const currentTime = Date.now();
+                if (currentTime - this.lastSpacePress < this.spacebarCooldown) {
+                    return; // Still in cooldown, ignore the press
+                }
+                
+                this.lastSpacePress = currentTime;
+                
                 const timing = this.evaluateTiming();
                 this.processHit(timing);
             }
@@ -507,10 +519,10 @@
                 }, 400);
                 
                 // Increase speed slightly over time
-                this.speed = Math.min(0.015, this.speed + 0.0001);
+                this.speed = Math.min(0.03, this.speed + 0.0002); // Max 0.03 (2x of original 0.015), increment 0.0002 (2x of original 0.0001)
                 
                 // Increase boulder advance rate over time for difficulty
-                this.boulderAdvanceRate = Math.min(0.08, this.boulderAdvanceRate + 0.001); // Max 0.08 (was 0.15), slower increase
+                this.boulderAdvanceRate = Math.min(0.4, this.boulderAdvanceRate + 0.005); // Max 0.4 (was 0.08), slower increase (was 0.001)
             }
             
             updateVisuals() {
